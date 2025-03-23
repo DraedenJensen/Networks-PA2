@@ -63,7 +63,7 @@ def _handle_PacketIn(event):
       ether.payload = reply
 
       msg = of.ofp_packet_out()
-      msg.data = e.pack()
+      msg.data = ether.pack()
       msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
       msg.in_port = inport
       event.connection.send(msg)
