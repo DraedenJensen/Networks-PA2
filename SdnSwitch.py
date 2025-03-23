@@ -12,37 +12,40 @@ from pox.lib.revent import EventHalt
 
 import pox.openflow.libopenflow_01 
 
-def _go_up(event):
+def launch(self):
+  log.info("Controller launched")
+  core.addListenerByName("UpEvent", _handle_UpEvent)
+  core.addListenerByName("ConnectionUp", _handle_ConnectionUp)
+  core.addListenerByName("PacketIn", _handle_PacketIn)
+
+def _handle_UpEvent(event):
   log.info("Controller set up")
 
-def launch():
-  log.info("Controller launched")
-  core.addListenerByName("UpEvent", _go_up)
 
 def _handle_ConnectionUp(event):
   log.info("Switch connected, listening for packets")
 
-'''
-What I need to do
-- Intercept ARP request
-- Select which of the two servers to use for the request, and send the MAC address back to the sender host.
-- Add forwarding rules to map the virtual IP address with the real IP address of the selected server. The host and the server must be connected in both directions.
-'''
-def handle_PacketIn(event):
-    log.info("Packet received")
-    in_port = event.port
-    packet = event.parsed
+  '''
+  What I need to do
+  - Intercept ARP request
+  - Select which of the two servers to use for the request, and send the MAC address back to the sender host.
+  - Add forwarding rules to map the virtual IP address with the real IP address of the selected server. The host and the server must be connected in both directions.
+  '''
+def _handle_PacketIn(event):
+  log.info("Packet received")
+  in_port = event.port
+  packet = event.parsed
 
-    if not packet.parsed:
-        log.warning("ignoring unparsed packet")
-        return
+  if not packet.parsed:
+      log.warning("ignoring unparsed packet")
+      return
 
-    a = packet.find('arp')
-    if not a:
-        log.warning("ignoring packet with no arp")
-        return
+  a = packet.find('arp')
+  if not a:
+      log.warning("ignoring packet with no arp")
+      return
 
-    log.debug("Event handled")
+  log.debug("Event handled")
 
     
 '''
