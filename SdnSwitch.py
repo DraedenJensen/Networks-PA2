@@ -32,13 +32,14 @@ def _handle_ConnectionUp(event):
   - Add forwarding rules to map the virtual IP address with the real IP address of the selected server. The host and the server must be connected in both directions.
   '''
 def _handle_PacketIn(event):
-  log.info("Packet received")
   in_port = event.port
   packet = event.parsed
 
   if not packet.parsed:
-      log.warning("ignoring unparsed packet")
+      log.warning("Packet received: [ignoring unparsed packet]")
       return
+
+  log.info(f"Packet received: {packet}")
 
   a = packet.find('arp')
   if not a:
