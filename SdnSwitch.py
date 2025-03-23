@@ -15,8 +15,8 @@ import pox.openflow.libopenflow_01
 def launch():
   log.info("Controller launched")
   core.addListenerByName("UpEvent", _handle_UpEvent)
-  core.addListenerByName("ConnectionUp", _handle_ConnectionUp)
-  core.addListenerByName("PacketIn", _handle_PacketIn)
+  core.openflow.addListenerByName("ConnectionUp", _handle_ConnectionUp)
+  core.openflow.addListenerByName("PacketIn", _handle_PacketIn)
 
 def _handle_UpEvent(event):
   log.info("Controller set up")
