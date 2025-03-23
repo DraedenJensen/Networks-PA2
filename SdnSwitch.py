@@ -32,21 +32,42 @@ def _handle_ConnectionUp(event):
   - Add forwarding rules to map the virtual IP address with the real IP address of the selected server. The host and the server must be connected in both directions.
   '''
 def _handle_PacketIn(event):
+  dpid = event.connection.dpid
   in_port = event.port
   packet = event.parsed
 
   if not packet.parsed:
-      log.warning("Packet received: [ignoring unparsed packet]")
-      return
+    log.warning("Packet received but couldn't be parsed")
+    return
 
   log.info(f"Packet received: {packet}")
 
-  a = packet.find('arp')
-  if not a:
-      log.debug("ignoring packet with no arp")
-      return
+  if packet.type == packet.ARPTYPE:
+    if packet.payload.opcode == arp.REQUEST:
+      log.info(f"ARP request received; src: {packet.payload.protosrc}, dest: {packet.payload.protodst}")
+      # reply = arp()
+      # reply.hwsrc = 0 #get requested mac address
+      # reply.hwdst = packet.src
+      # reply.opcode = arp.REPLY
+      # reply.protosrc = 0#get IP of requested machine
+      # reply.protodst = packet.payload.protosrc
 
-  log.info("Event handled")
+      # ether = ethernet()
+      # ether.type = ethernet.ARP_TYPE
+      # ether.dst = packet.src
+      # ether.src = 0#requested mac address
+      # ether.payload = reply
+
+      # msg = of.ofp_packet_out()
+      # msg.data = e.pack()
+      # msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
+      # msg.in_port = inport
+      # event.connection.send(msg)
+    else:
+      log.info("Ignoring non-request ARP packet")
+  else:
+    log.debug("Ignoring non-ARP packet")
+    return
 
     
 '''
