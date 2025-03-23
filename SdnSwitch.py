@@ -12,7 +12,7 @@ from pox.lib.revent import EventHalt
 
 import pox.openflow.libopenflow_01 
 
-def launch(self):
+def launch():
   log.info("Controller launched")
   core.addListenerByName("UpEvent", _handle_UpEvent)
   core.addListenerByName("ConnectionUp", _handle_ConnectionUp)
