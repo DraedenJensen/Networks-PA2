@@ -43,10 +43,10 @@ def _handle_PacketIn(event):
 
   a = packet.find('arp')
   if not a:
-      log.warning("ignoring packet with no arp")
+      log.debug("ignoring packet with no arp")
       return
 
-  log.debug("Event handled")
+  log.info("Event handled")
 
     
 '''
