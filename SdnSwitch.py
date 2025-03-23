@@ -42,7 +42,7 @@ def _handle_PacketIn(event):
 
   log.info(f"Packet received: {packet}")
 
-  if packet.type == packet.ARPTYPE:
+  if packet.type == packet.ARP_TYPE:
     if packet.payload.opcode == arp.REQUEST:
       log.info(f"ARP request received; src: {packet.payload.protosrc}, dest: {packet.payload.protodst}")
       # reply = arp()
