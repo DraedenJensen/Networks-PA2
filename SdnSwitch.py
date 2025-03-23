@@ -65,7 +65,7 @@ def _handle_PacketIn(event):
       msg = of.ofp_packet_out()
       msg.data = ether.pack()
       msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-      msg.in_port = inport
+      msg.in_port = in_port
       event.connection.send(msg)
     else:
       log.info("Ignoring non-request ARP packet")
