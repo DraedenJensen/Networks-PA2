@@ -45,24 +45,28 @@ def _handle_PacketIn(event):
   if packet.type == packet.ARP_TYPE:
     if packet.payload.opcode == arp.REQUEST:
       log.info(f"ARP request received; src: {packet.payload.protosrc}, dest: {packet.payload.protodst}")
-      # reply = arp()
-      # reply.hwsrc = 0 #get requested mac address
-      # reply.hwdst = packet.src
-      # reply.opcode = arp.REPLY
-      # reply.protosrc = 0#get IP of requested machine
-      # reply.protodst = packet.payload.protosrc
+      reply = arp()
+      if packet.payload.protosrc == IPAddr("10.0.0.1") | packet.payload.protosrc == IPAddr("10.0.0.3") :
+        reply.hwsrc = EthAddr("00:00:00:00:00:05")
+        reply.protosrc = IPAddr("10.0.0.5")
+      elif packet.payload.protosrc == IPAddr("10.0.0.2") | packet.payload.protosrc == IPAddr("10.0.0.4") :
+        reply.hwsrc = EthAddr("00:00:00:00:00:06")
+        reply.protosrc = IPAddr("10.0.0.6")
+      reply.hwdst = packet.src
+      reply.opcode = arp.REPLY
+      reply.protodst = packet.payload.protosrc
 
-      # ether = ethernet()
-      # ether.type = ethernet.ARP_TYPE
-      # ether.dst = packet.src
-      # ether.src = 0#requested mac address
-      # ether.payload = reply
+      ether = ethernet()
+      ether.type = ethernet.ARP_TYPE
+      ether.dst = packet.src
+      ether.src = reply.hwsrc
+      ether.payload = reply
 
-      # msg = of.ofp_packet_out()
-      # msg.data = e.pack()
-      # msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-      # msg.in_port = inport
-      # event.connection.send(msg)
+      msg = of.ofp_packet_out()
+      msg.data = e.pack()
+      msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
+      msg.in_port = inport
+      event.connection.send(msg)
     else:
       log.info("Ignoring non-request ARP packet")
   else:
