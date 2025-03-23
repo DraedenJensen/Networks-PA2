@@ -12,6 +12,12 @@ from pox.lib.revent import EventHalt
 
 import pox.openflow.libopenflow_01 
 
+def _go_up(event):
+  log.info("Controller set up???")
+
+def launch():
+  core.addListenerByName("UpEvent", _go_up)
+
 '''
 What I need to do
 - Intercept ARP request
