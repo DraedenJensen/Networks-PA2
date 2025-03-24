@@ -138,15 +138,16 @@ def _handle_PacketIn(event):
     log.info(packet)
     #somehow you have to handle this apparently but idk what to do 
 
-    # msg = of.ofp_packet_out()
-    # msg.data = packet.pack()
-    # if packet.payload == IPAddr("10.0.0.5"):
-    #   msg.actions.append(of.ofp_action_output(port = 5))
-    # elif packet.payload == IPAddr("10.0.0.6"):
-    #   msg.actions.append(of.ofp_action_output(port = 6))
-    # msg.in_port = of.OFPP_NONE
-    # event.connection.send(msg)
-    # log.info("Forwarded IP_TYPE packet to server")
+    msg = of.ofp_packet_out()
+    msg.data = packet.pack()
+    if packet.payload == EthAddr("00:00:00:00:00:05"):
+      log.info("matched")
+      msg.actions.append(of.ofp_action_output(port = 5))
+    elif packet.payload == IPAddr("00:00:00:00:00:06"):
+      msg.actions.append(of.ofp_action_output(port = 6))
+    msg.in_port = of.OFPP_NONE
+    event.connection.send(msg)
+    log.info("Forwarded IP_TYPE packet to server")
 
     
 '''
