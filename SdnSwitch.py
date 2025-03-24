@@ -119,7 +119,7 @@ def _handle_PacketIn(event):
         of_msg.actions.append(of.ofp_action_nw_addr.set_src(IPAddr("10.0.0.10"))) #hard coded 
         #of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
         of_msg.actions.append(of.ofp_action_output(port = out_port))
-        event.connection.send(of_msg_r)
+        event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {in_port} with source {packet.payload.protosrc} and destination {packet.payload.protodst}, send to outport {out_port} with source {reply.protosrc}")
 
 #match:
