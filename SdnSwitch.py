@@ -34,7 +34,6 @@ def _handle_ConnectionUp(event):
 def _handle_PacketIn(event):
   dpid = event.connection.dpid
   in_port = event.port
-  log.info(f"{in_port}")
   packet = event.parsed
 
   if not packet.parsed:
@@ -45,15 +44,18 @@ def _handle_PacketIn(event):
 
   if packet.type == packet.ARP_TYPE:
     if packet.payload.opcode == arp.REQUEST:
-      log.info(f"ARP request received; src: {packet.payload.protosrc}, dest: {packet.payload.protodst}")
+      log.info(f"ARP request received; src: {packet.payload.protosrc} (port {in_port}), dest: {packet.payload.protodst}")
       reply = arp()
+      out_port = 0
       #TODO this is almost certainly wrong; I'm just hard coding MAC addresses here
       if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
         reply.hwsrc = EthAddr("00:00:00:00:00:05")
         reply.protosrc = IPAddr("10.0.0.5")
+        out_port = 5
       elif packet.payload.protosrc == IPAddr("10.0.0.2") or packet.payload.protosrc == IPAddr("10.0.0.4") :
         reply.hwsrc = EthAddr("00:00:00:00:00:06")
         reply.protosrc = IPAddr("10.0.0.6")
+        out_port = 6
       reply.hwdst = packet.src
       reply.opcode = arp.REPLY
       reply.protodst = packet.payload.protosrc
@@ -76,7 +78,9 @@ def _handle_PacketIn(event):
       #of_msg.match.dl_type #IPv4
       of_msg.match.nw_dst = packet.payload.protodst #this should match the virtual IP address
       of_msg.actions.append(of.ofp_action_nw_addr.set_dst(reply.protosrc)) #this should match the real IP address of the selected server
-      of_msg.actions.append(of.ofp_action_output())
+      of_msg.actions.append(of.ofp_action_output(port = out_port))
+      event.connection.send(of_msg)
+      log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {reply.protosrc}")
 #     match:
 # inport=h1-port, dst-ip=10.0.0.10
 # action:
