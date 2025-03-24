@@ -34,7 +34,7 @@ def _handle_ConnectionUp(event):
 def _handle_PacketIn(event):
   dpid = event.connection.dpid
   in_port = event.port
-  log.debug(f"{in_port}")
+  log.info(f"{in_port}")
   packet = event.parsed
 
   if not packet.parsed:
