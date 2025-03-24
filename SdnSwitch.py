@@ -52,11 +52,11 @@ def _handle_PacketIn(event):
       #TODO this is almost certainly wrong; I'm just hard coding MAC addresses here
       if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
         reply.hwsrc = EthAddr("00:00:00:00:00:05")
-        reply.protosrc = IPAddr("10.0.0.5")
+        reply.protosrc = packet.payload.protodst
         out_port = 5
       elif packet.payload.protosrc == IPAddr("10.0.0.2") or packet.payload.protosrc == IPAddr("10.0.0.4") :
         reply.hwsrc = EthAddr("00:00:00:00:00:06")
-        reply.protosrc = IPAddr("10.0.0.6")
+        reply.protosrc = packet.payload.protodst
         out_port = 6
       reply.hwdst = packet.src
       reply.opcode = arp.REPLY
