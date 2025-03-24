@@ -135,7 +135,7 @@ def _handle_PacketIn(event):
     else:
       log.info("Ignoring non-request ARP packet")
   elif packet.type == packet.IP_TYPE:
-    log.info(packet.payload)
+    log.info(packet.payload.protosrc)
     #somehow you have to handle this apparently but idk what to do 
 
     msg = of.ofp_packet_out()
