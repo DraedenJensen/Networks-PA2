@@ -111,8 +111,8 @@ def _handle_PacketIn(event):
         # event.connection.send(arp_msg)
         # log.info("Forwarded ping to server")
       else:
-        of_msg_r = of.ofp_flow_mod()
-        of_msg_r.match.in_port = in_port
+        of_msg = of.ofp_flow_mod()
+        of_msg.match.in_port = in_port
         of_msg.match.dl_type = 0x800
         of_msg.match.nw_src = packet.payload.protosrc
         of_msg.match.nw_dst = packet.payload.protodst
