@@ -41,7 +41,6 @@ def _handle_PacketIn(event):
       reply = arp()
       out_port = 0
       reverse = False
-      #TODO this is almost certainly wrong; I'm just hard coding MAC addresses here
       if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
         reply.hwsrc = EthAddr("00:00:00:00:00:05")
         reply.protosrc = packet.payload.protodst
