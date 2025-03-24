@@ -109,7 +109,7 @@ def _handle_PacketIn(event):
         of_msg.match.dl_type = 0x800
         of_msg.match.nw_src = realIP
         of_msg.match.nw_dst = packet.payload.protosrc
-        of_msg.actions.append(of.ofp_action_nw_addr.set_src(packet.payload.protodst) #TODO HARD CODED THIS ISN'T FUNCTIONAL
+        of_msg.actions.append(of.ofp_action_nw_addr.set_src(packet.payload.protodst)) #TODO HARD CODED THIS ISN'T FUNCTIONAL
         #of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
         of_msg.actions.append(of.ofp_action_output(port = in_port))
         event.connection.send(of_msg)
