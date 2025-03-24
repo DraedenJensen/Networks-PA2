@@ -36,8 +36,6 @@ def _handle_PacketIn(event):
   in_port = event.port
   packet = event.parsed
 
-  log.info(event.connection.features)
-
   if not packet.parsed:
     log.warning("Packet received but couldn't be parsed")
     return
@@ -53,10 +51,12 @@ def _handle_PacketIn(event):
       if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
         reply.hwsrc = EthAddr("00:00:00:00:00:05")
         reply.protosrc = packet.payload.protodst
+        realIP = IPAddr("10.0.0.5")
         out_port = 5
       elif packet.payload.protosrc == IPAddr("10.0.0.2") or packet.payload.protosrc == IPAddr("10.0.0.4") :
         reply.hwsrc = EthAddr("00:00:00:00:00:06")
         reply.protosrc = packet.payload.protodst
+        realIP = IPAddr("10.0.0.6")
         out_port = 6
       reply.hwdst = packet.src
       reply.opcode = arp.REPLY
@@ -79,10 +79,11 @@ def _handle_PacketIn(event):
       of_msg.match.in_port = in_port #this should match the port of the client host
       of_msg.match.dl_type = 0x800
       of_msg.match.nw_dst = packet.payload.protodst #this should match the virtual IP address
-      of_msg.actions.append(of.ofp_action_nw_addr.set_dst(reply.protosrc)) #this should match the real IP address of the selected server
+      of_msg.actions.append(of.ofp_action_nw_addr.set_dst(realIP)) #this should match the real IP address of the selected server
+      of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
       of_msg.actions.append(of.ofp_action_output(port = out_port))
       event.connection.send(of_msg)
-      log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {reply.protosrc}")
+      log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {realIP}")
      
       # Reverse flow
       of_msg_r = of.ofp_flow_mod()
@@ -90,7 +91,8 @@ def _handle_PacketIn(event):
       of_msg.match.dl_type = 0x800
       of_msg.match.nw_src = reply.protosrc
       of_msg.match.nw_dst = packet.payload.protosrc
-      of_msg.actions.append(of.ofp_action_nw_addr.set_src(packet.payload.protodst)) #this should match the real IP address of the selected server
+      of_msg.actions.append(of.ofp_action_nw_addr.set_src(realIP) #this should match the real IP address of the selected server
+      of_msg.actions.append(of.ofp_action_lw_addr.set_dst(reply.hwsrc))
       of_msg.actions.append(of.ofp_action_output(port = in_port))
       event.connection.send(of_msg_r)
       log.info(f"OpenFlow rule set: match traffic from inport {out_port} with source {reply.protosrc} and destination {packet.payload.protosrc}, send to outport {in_port} with source {packet.payload.protodst}")
