@@ -58,6 +58,18 @@ def _handle_PacketIn(event):
         reply.protosrc = packet.payload.protodst
         realIP = IPAddr("10.0.0.6")
         out_port = 6
+      else:
+        reply.protosrc = packet.payload.protodst
+        realIP = packet.payload.protodst
+        match packet.payload.protodst:
+          case IPAddr("10.0.0.1"):
+            reply.hwsrc = EthAddr("00:00:00:00:00:01")
+          case IPAddr("10.0.0.2"):
+            reply.hwsrc = EthAddr("00:00:00:00:00:02")
+          case IPAddr("10.0.0.3"):
+            reply.hwsrc = EthAddr("00:00:00:00:00:03")
+          case IPAddr("10.0.0.4"):
+            reply.hwsrc = EthAddr("00:00:00:00:00:04")
       reply.hwdst = packet.src
       reply.opcode = arp.REPLY
       reply.protodst = packet.payload.protosrc
