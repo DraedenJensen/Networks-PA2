@@ -26,23 +26,25 @@ def _handle_ConnectionUp(event):
 
 # Main event handler function for responding to received packets.
 def _handle_PacketIn(event):
-  dpid = event.connection.dpid
-  in_port = event.port
-  packet = event.parsed
+    dpid = event.connection.dpid
+    in_port = event.port
+    packet = event.parsed
 
-  if not packet.parsed:
-    log.warning("Packet received but couldn't be parsed")
-    return
+    if not packet.parsed:
+        log.warning("Packet received but couldn't be parsed")
+        return
 
-  log.debug(f"Packet received: {packet}")
-
-
+    log.debug(f"Packet received: {packet}")
+    
+    # Only respond to ARP reqjests
     if packet.type == packet.ARP_TYPE:
         if packet.payload.opcode == arp.REQUEST:
             log.info(f"ARP request received; src: {packet.payload.protosrc} (port {in_port}), dest: {packet.payload.protodst}")
             reply = arp()
             out_port = 0
             reverse = False
+            
+            # Get the src and dst of the reply based on the src and dst of the request
             if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
                 reply.hwsrc = EthAddr("00:00:00:00:00:05")
                 reply.protosrc = packet.payload.protodst
@@ -74,12 +76,14 @@ def _handle_PacketIn(event):
             reply.opcode = arp.REPLY
             reply.protodst = packet.payload.protosrc
 
+            # Set up ethernet connection for ARP reply
             ether = ethernet()
             ether.type = ethernet.ARP_TYPE
             ether.dst = packet.src
             ether.src = reply.hwsrc
             ether.payload = reply
 
+            # Set up bidirectional flow rules
             if not reverse:
                 of_msg = of.ofp_flow_mod()
                 of_msg.match.in_port = in_port #this should match the port of the client host
@@ -101,9 +105,10 @@ def _handle_PacketIn(event):
                 event.connection.send(of_msg)
                 log.info(f"OpenFlow rule set: match traffic from inport {out_port} with source {realIP} and destination {packet.payload.protosrc}, send to outport {in_port} with source {packet.payload.protodst}") 
 
-                arp_msg = of.ofp_packet_out()
-                arp_msg.data = ether.pack()
-                arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-                arp_msg.in_port = in_port
-                event.connection.send(arp_msg)
-                log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
+            # Send ARP reply
+            arp_msg = of.ofp_packet_out()
+            arp_msg.data = ether.pack()
+            arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
+            arp_msg.in_port = in_port
+            event.connection.send(arp_msg)
+            log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
