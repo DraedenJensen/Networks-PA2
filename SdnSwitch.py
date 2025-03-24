@@ -98,19 +98,20 @@ def _handle_PacketIn(event):
         event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {realIP}")
         
-        msg = of.ofp_packet_out()
-        msg.data = packet.pack()
-        msg.actions.append(of.ofp_action_output(port = out_port))
-        msg.in_port = in_port
-        event.connection.send(arp_msg)
-        log.info("Forwarded ping to server")
+        # forwarding
+        # msg = of.ofp_packet_out()
+        # msg.data = packet.pack()
+        # msg.actions.append(of.ofp_action_output(port = out_port))
+        # msg.in_port = in_port
+        # event.connection.send(arp_msg)
+        # log.info("Forwarded ping to server")
       else:
         of_msg_r = of.ofp_flow_mod()
         of_msg_r.match.in_port = out_port
         of_msg.match.dl_type = 0x800
-        of_msg.match.nw_src = reply.protosrc
+        of_msg.match.nw_src = realIP
         of_msg.match.nw_dst = packet.payload.protosrc
-        of_msg.actions.append(of.ofp_action_nw_addr.set_src(realIP)) #this should match the real IP address of the selected server
+        of_msg.actions.append(of.ofp_action_nw_addr.set_src(reply.protosrc)) 
         of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
         of_msg.actions.append(of.ofp_action_output(port = in_port))
         event.connection.send(of_msg_r)
