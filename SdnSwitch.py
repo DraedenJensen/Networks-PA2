@@ -135,7 +135,7 @@ def _handle_PacketIn(event):
     else:
       log.info("Ignoring non-request ARP packet")
   elif packet.type == packet.IP_TYPE:
-    log.info(packet)
+    log.info(packet.payload)
     #somehow you have to handle this apparently but idk what to do 
 
     msg = of.ofp_packet_out()
@@ -143,7 +143,7 @@ def _handle_PacketIn(event):
     if packet.payload == EthAddr("00:00:00:00:00:05"):
       log.info("matched")
       msg.actions.append(of.ofp_action_output(port = 5))
-    elif packet.payload == IPAddr("00:00:00:00:00:06"):
+    elif packet.payload == EthAddr("00:00:00:00:00:06"):
       msg.actions.append(of.ofp_action_output(port = 6))
     msg.in_port = of.OFPP_NONE
     event.connection.send(msg)
