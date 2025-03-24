@@ -23,7 +23,6 @@ def _handle_UpEvent(event):
 
 def _handle_ConnectionUp(event):
   log.info("Switch connected, listening for packets")
-  log.info(event.ofp)
 
   '''
   What I need to do
@@ -103,7 +102,7 @@ def _handle_PacketIn(event):
         event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {realIP}")
         
-        
+        # Reverse flow
         of_msg = of.ofp_flow_mod()
         of_msg.match.in_port = out_port
         of_msg.match.dl_type = 0x800
@@ -136,8 +135,15 @@ def _handle_PacketIn(event):
     else:
       log.info("Ignoring non-request ARP packet")
   elif packet.type == packet.IP_TYPE:
-    log.info("Gotta do something")
-    return
+    msg = of.ofp_packet_out()
+    msg.data = packet.pack()
+    if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
+      msg.actions.append(of.ofp_action_output(port = 5))
+    elif packet.payload.protosrc == IPAddr("10.0.0.2") or packet.payload.protosrc == IPAddr("10.0.0.4") :
+      msg.actions.append(of.ofp_action_output(port = 6))
+    msg.in_port = event.port
+    event.connection.send(msg)
+    log.info("Forwarded IP_TYPE packet to server")
 
     
 '''
