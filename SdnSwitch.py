@@ -75,7 +75,7 @@ def _handle_PacketIn(event):
 
       of_msg = of.ofp_flow_mod()
       of_msg.match.in_port = in_port #this should match the port of the client host
-      #of_msg.match.dl_type #IPv4
+      of_msg.match.dl_type = 0x800
       of_msg.match.nw_dst = packet.payload.protodst #this should match the virtual IP address
       of_msg.actions.append(of.ofp_action_nw_addr.set_dst(reply.protosrc)) #this should match the real IP address of the selected server
       of_msg.actions.append(of.ofp_action_output(port = out_port))
