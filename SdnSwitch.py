@@ -51,7 +51,7 @@ def _handle_PacketIn(event):
       out_port = 0
       #TODO this is almost certainly wrong; I'm just hard coding MAC addresses here
       if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
-        reply.hwsrc = event.connections.ports[5].hw_addr
+        reply.hwsrc = event.connection.ports[5].hw_addr
         reply.protosrc = IPAddr("10.0.0.5")
         out_port = 5
       elif packet.payload.protosrc == IPAddr("10.0.0.2") or packet.payload.protosrc == IPAddr("10.0.0.4") :
