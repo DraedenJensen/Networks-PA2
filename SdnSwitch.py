@@ -141,6 +141,7 @@ def _handle_PacketIn(event):
     else:
       log.info("Ignoring non-request ARP packet")
   elif packet.type == packet.IP_TYPE:
+    pass
     # log.info(packet.)
     # #somehow you have to handle this apparently but idk what to do 
 
