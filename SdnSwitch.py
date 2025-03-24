@@ -141,7 +141,7 @@ def _handle_PacketIn(event):
       msg.actions.append(of.ofp_action_output(port = 5))
     elif packet.payload == IPAddr("10.0.0.6"):
       msg.actions.append(of.ofp_action_output(port = 6))
-    msg.in_port = event.port
+    msg.in_port = of.OFPP_NONE
     event.connection.send(msg)
     log.info("Forwarded IP_TYPE packet to server")
 
