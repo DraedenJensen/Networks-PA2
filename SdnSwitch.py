@@ -24,7 +24,7 @@ def _handle_UpEvent(event):
 
 def _handle_ConnectionUp(event):
   log.info("Switch connected, listening for packets")
-  log.info(ofp_switch_features)
+  log.info(event.ofp)
 
   '''
   What I need to do
