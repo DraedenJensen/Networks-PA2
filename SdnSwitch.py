@@ -74,6 +74,7 @@ def _handle_PacketIn(event):
         elif packet.payload.protodst == IPAddr("10.0.0.4"):
           reply.hwsrc = EthAddr("00:00:00:00:00:04")
           out_port = 4
+        reverse = True
       reply.hwdst = packet.src
       reply.opcode = arp.REPLY
       reply.protodst = packet.payload.protosrc
