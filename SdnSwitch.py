@@ -103,6 +103,18 @@ def _handle_PacketIn(event):
         event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {realIP}")
         
+        
+        of_msg = of.ofp_flow_mod()
+        of_msg.match.in_port = out_port
+        of_msg.match.dl_type = 0x800
+        of_msg.match.nw_src = realIP
+        of_msg.match.nw_dst = packet.payload.protosrc
+        of_msg.actions.append(of.ofp_action_nw_addr.set_src(packet.payload.protodst) #TODO HARD CODED THIS ISN'T FUNCTIONAL
+        #of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
+        of_msg.actions.append(of.ofp_action_output(port = in_port))
+        event.connection.send(of_msg)
+        log.info(f"OpenFlow rule set: match traffic from inport {out_port} with source {realIP} and destination {packet.payload.protosrc}, send to outport {in_port} with source {packet.payload.protodst}") 
+
         # forwarding
         # msg = of.ofp_packet_out()
         # msg.data = packet.pack()
@@ -110,17 +122,17 @@ def _handle_PacketIn(event):
         # msg.in_port = in_port
         # event.connection.send(arp_msg)
         # log.info("Forwarded ping to server")
-      else:
-        of_msg = of.ofp_flow_mod()
-        of_msg.match.in_port = in_port
-        of_msg.match.dl_type = 0x800
-        of_msg.match.nw_src = packet.payload.protosrc
-        of_msg.match.nw_dst = packet.payload.protodst
-        of_msg.actions.append(of.ofp_action_nw_addr.set_src(IPAddr("10.0.0.10"))) #TODO HARD CODED THIS ISN'T FUNCTIONAL
-        #of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
-        of_msg.actions.append(of.ofp_action_output(port = out_port))
-        event.connection.send(of_msg)
-        log.info(f"OpenFlow rule set: match traffic from inport {in_port} with source {packet.payload.protosrc} and destination {packet.payload.protodst}, send to outport {out_port} with source {reply.protosrc}")  
+      # else:
+      #   of_msg = of.ofp_flow_mod()
+      #   of_msg.match.in_port = in_port
+      #   of_msg.match.dl_type = 0x800
+      #   of_msg.match.nw_src = packet.payload.protosrc
+      #   of_msg.match.nw_dst = packet.payload.protodst
+      #   of_msg.actions.append(of.ofp_action_nw_addr.set_src(IPAddr("10.0.0.10"))) #TODO HARD CODED THIS ISN'T FUNCTIONAL
+      #   #of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
+      #   of_msg.actions.append(of.ofp_action_output(port = out_port))
+      #   event.connection.send(of_msg)
+      #   log.info(f"OpenFlow rule set: match traffic from inport {in_port} with source {packet.payload.protosrc} and destination {packet.payload.protodst}, send to outport {out_port} with source {reply.protosrc}")  
     else:
       log.info("Ignoring non-request ARP packet")
   elif packet.type == packet.IP_TYPE:
