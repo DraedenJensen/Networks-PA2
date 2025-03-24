@@ -97,7 +97,7 @@ def _handle_PacketIn(event):
         of_msg.actions.append(of.ofp_action_output(port = out_port))
         event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {realIP}")
-     else:
+      else:
         of_msg_r = of.ofp_flow_mod()
         of_msg_r.match.in_port = out_port
         of_msg.match.dl_type = 0x800
