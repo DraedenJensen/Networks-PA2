@@ -104,39 +104,27 @@ def _handle_PacketIn(event):
         log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {realIP}")
         
         # forwarding
-        msg = of.ofp_packet_out()
-        msg.data = packet.pack()
-        msg.actions.append(of.ofp_action_output(port = out_port))
-        msg.in_port = in_port
-        event.connection.send(arp_msg)
-        log.info("Forwarded ping to server")
+        # msg = of.ofp_packet_out()
+        # msg.data = packet.pack()
+        # msg.actions.append(of.ofp_action_output(port = out_port))
+        # msg.in_port = in_port
+        # event.connection.send(arp_msg)
+        # log.info("Forwarded ping to server")
       else:
         of_msg = of.ofp_flow_mod()
         of_msg.match.in_port = in_port
         of_msg.match.dl_type = 0x800
         of_msg.match.nw_src = packet.payload.protosrc
         of_msg.match.nw_dst = packet.payload.protodst
-        of_msg.actions.append(of.ofp_action_nw_addr.set_src(IPAddr("10.0.0.10"))) #hard coded 
+        of_msg.actions.append(of.ofp_action_nw_addr.set_src(IPAddr("10.0.0.10"))) #TODO HARD CODED THIS ISN'T FUNCTIONAL
         #of_msg.actions.append(of.ofp_action_dl_addr.set_dst(reply.hwsrc))
         of_msg.actions.append(of.ofp_action_output(port = out_port))
         event.connection.send(of_msg)
-        log.info(f"OpenFlow rule set: match traffic from inport {in_port} with source {packet.payload.protosrc} and destination {packet.payload.protodst}, send to outport {out_port} with source {reply.protosrc}")
-
-#match:
-# inport=h1-port, dst-ip=10.0.0.10
-# action:
-# set: dst-ip=10.0.0.5
-# output: h5-port
-# - h5 to h1
-# match:
-# inport=h5-port, src-ip=10.0.0.5, dst-ip=10.0.0.1
-# action:
-# set: src-ip=10.0.0.10
-# output: h1-port  
+        log.info(f"OpenFlow rule set: match traffic from inport {in_port} with source {packet.payload.protosrc} and destination {packet.payload.protodst}, send to outport {out_port} with source {reply.protosrc}")  
     else:
       log.info("Ignoring non-request ARP packet")
-  else:
-    log.debug("Ignoring non-ARP packet")
+  elif packet.type == packet.IP_TYPE:
+    log.info("Gotta do something")
     return
 
     
