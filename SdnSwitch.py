@@ -137,9 +137,9 @@ def _handle_PacketIn(event):
   elif packet.type == packet.IP_TYPE:
     msg = of.ofp_packet_out()
     msg.data = packet.pack()
-    if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
+    if packet.payload == IPAddr("10.0.0.5"):
       msg.actions.append(of.ofp_action_output(port = 5))
-    elif packet.payload.protosrc == IPAddr("10.0.0.2") or packet.payload.protosrc == IPAddr("10.0.0.4") :
+    elif packet.payload == IPAddr("10.0.0.6"):
       msg.actions.append(of.ofp_action_output(port = 6))
     msg.in_port = event.port
     event.connection.send(msg)
