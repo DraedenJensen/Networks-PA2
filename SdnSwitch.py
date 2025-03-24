@@ -87,12 +87,6 @@ def _handle_PacketIn(event):
       event.connection.send(arp_msg)
       log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
 
-      msg = of.ofp_packet_out()
-      msg.data = packet.pack()
-      msg.actions.append(of.ofp_action_output(port = out_port))
-      msg.in_port = in_port
-      event.connection.send(arp_msg)
-      log.info("Forwarded ping to server")
       if not reverse:
         of_msg = of.ofp_flow_mod()
         of_msg.match.in_port = in_port #this should match the port of the client host
@@ -104,7 +98,12 @@ def _handle_PacketIn(event):
         event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {in_port} with destination {packet.payload.protodst}, send to outport {out_port} with destination {realIP}")
         
-        
+        msg = of.ofp_packet_out()
+        msg.data = packet.pack()
+        msg.actions.append(of.ofp_action_output(port = out_port))
+        msg.in_port = in_port
+        event.connection.send(arp_msg)
+        log.info("Forwarded ping to server")
       else:
         of_msg_r = of.ofp_flow_mod()
         of_msg_r.match.in_port = out_port
