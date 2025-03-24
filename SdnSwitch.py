@@ -36,7 +36,7 @@ def _handle_PacketIn(event):
   in_port = event.port
   packet = event.parsed
 
-  log.info(event.features)
+  log.info(event.connection.features)
 
   if not packet.parsed:
     log.warning("Packet received but couldn't be parsed")
