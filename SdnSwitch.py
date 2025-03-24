@@ -92,6 +92,7 @@ def _handle_PacketIn(event):
       of_msg.match.nw_dst = packet.payload.protosrc
       of_msg.actions.append(of.ofp_action_nw_addr.set_src(packet.payload.protodst)) #this should match the real IP address of the selected server
       of_msg.actions.append(of.ofp_action_output(port = in_port))
+      event.connection.send(of_msg_r)
       log.info(f"OpenFlow rule set: match traffic from inport {out_port} with source {reply.protosrc} and destination {packet.payload.protosrc}, send to outport {in_port} with source {packet.payload.protodst}")
 #match:
 # inport=h1-port, dst-ip=10.0.0.10
