@@ -51,7 +51,7 @@ def _handle_PacketIn(event):
       out_port = 0
       #TODO this is almost certainly wrong; I'm just hard coding MAC addresses here
       if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
-        reply.hwsrc = event.connection.ports[5].hw_addr
+        reply.hwsrc = EthAddr("00:00:00:00:00:05")
         reply.protosrc = IPAddr("10.0.0.5")
         out_port = 5
       elif packet.payload.protosrc == IPAddr("10.0.0.2") or packet.payload.protosrc == IPAddr("10.0.0.4") :
@@ -94,6 +94,9 @@ def _handle_PacketIn(event):
       of_msg.actions.append(of.ofp_action_output(port = in_port))
       event.connection.send(of_msg_r)
       log.info(f"OpenFlow rule set: match traffic from inport {out_port} with source {reply.protosrc} and destination {packet.payload.protosrc}, send to outport {in_port} with source {packet.payload.protodst}")
+  else:
+    log.info(f"*** ARP NON request received; src: {packet.payload.protosrc} (port {in_port}), dest: {packet.payload.protodst}")
+
 #match:
 # inport=h1-port, dst-ip=10.0.0.10
 # action:
