@@ -84,12 +84,12 @@ def _handle_PacketIn(event):
       ether.src = reply.hwsrc
       ether.payload = reply
 
-      arp_msg = of.ofp_packet_out()
-      arp_msg.data = ether.pack()
-      arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-      arp_msg.in_port = in_port
-      event.connection.send(arp_msg)
-      log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
+      # arp_msg = of.ofp_packet_out()
+      # arp_msg.data = ether.pack()
+      # arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
+      # arp_msg.in_port = in_port
+      # event.connection.send(arp_msg)
+      # log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
 
       if not reverse:
         of_msg = of.ofp_flow_mod()
@@ -114,6 +114,12 @@ def _handle_PacketIn(event):
         event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {out_port} with source {realIP} and destination {packet.payload.protosrc}, send to outport {in_port} with source {packet.payload.protodst}") 
 
+        arp_msg = of.ofp_packet_out()
+        arp_msg.data = ether.pack()
+        arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
+        arp_msg.in_port = in_port
+        event.connection.send(arp_msg)
+        log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
         # forwarding
         # msg = of.ofp_packet_out()
         # msg.data = packet.pack()
@@ -135,19 +141,19 @@ def _handle_PacketIn(event):
     else:
       log.info("Ignoring non-request ARP packet")
   elif packet.type == packet.IP_TYPE:
-    log.info(packet.payload.src)
-    #somehow you have to handle this apparently but idk what to do 
+    # log.info(packet.)
+    # #somehow you have to handle this apparently but idk what to do 
 
-    msg = of.ofp_packet_out()
-    msg.data = packet.pack()
-    if packet.payload == EthAddr("00:00:00:00:00:05"):
-      log.info("matched")
-      msg.actions.append(of.ofp_action_output(port = 5))
-    elif packet.payload == EthAddr("00:00:00:00:00:06"):
-      msg.actions.append(of.ofp_action_output(port = 6))
-    msg.in_port = of.OFPP_NONE
-    event.connection.send(msg)
-    log.info("Forwarded IP_TYPE packet to server")
+    # msg = of.ofp_packet_out()
+    # msg.data = packet.pack()
+    # if packet.payload == EthAddr("00:00:00:00:00:05"):
+    #   log.info("matched")
+    #   msg.actions.append(of.ofp_action_output(port = 5))
+    # elif packet.payload == EthAddr("00:00:00:00:00:06"):
+    #   msg.actions.append(of.ofp_action_output(port = 6))
+    # msg.in_port = of.OFPP_NONE
+    # event.connection.send(msg)
+    # log.info("Forwarded IP_TYPE packet to server")
 
     
 '''
