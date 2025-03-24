@@ -34,18 +34,20 @@ def _handle_ConnectionUp(event):
 def _handle_PacketIn(event):
   dpid = event.connection.dpid
   in_port = event.port
+  log.debug(f"{in_port}")
   packet = event.parsed
 
   if not packet.parsed:
     log.warning("Packet received but couldn't be parsed")
     return
 
-  log.info(f"Packet received: {packet}")
+  log.debug(f"Packet received: {packet}")
 
   if packet.type == packet.ARP_TYPE:
     if packet.payload.opcode == arp.REQUEST:
       log.info(f"ARP request received; src: {packet.payload.protosrc}, dest: {packet.payload.protodst}")
       reply = arp()
+      #TODO this is almost certainly wrong; I'm just hard coding MAC addresses here
       if packet.payload.protosrc == IPAddr("10.0.0.1") or packet.payload.protosrc == IPAddr("10.0.0.3") :
         reply.hwsrc = EthAddr("00:00:00:00:00:05")
         reply.protosrc = IPAddr("10.0.0.5")
@@ -62,11 +64,31 @@ def _handle_PacketIn(event):
       ether.src = reply.hwsrc
       ether.payload = reply
 
-      msg = of.ofp_packet_out()
-      msg.data = ether.pack()
-      msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-      msg.in_port = in_port
-      event.connection.send(msg)
+      arp_msg = of.ofp_packet_out()
+      arp_msg.data = ether.pack()
+      arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
+      arp_msg.in_port = in_port
+      event.connection.send(arp_msg)
+      log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwdst}")
+
+      of_msg = of.ofp_flow_mod()
+      of_msg.match.in_port = in_port #this should match the port of the client host
+      #of_msg.match.dl_type #IPv4
+      of_msg.match.nw_dst = packet.payload.protodst #this should match the virtual IP address
+      of_msg.actions.append(of.ofp_action_nw_addr.set_dst(reply.protosrc)) #this should match the real IP address of the selected server
+      of_msg.actions.append(of.ofp_action_output())
+#     match:
+# inport=h1-port, dst-ip=10.0.0.10
+# action:
+# set: dst-ip=10.0.0.5
+# output: h5-port
+# - h5 to h1
+# match:
+# inport=h5-port, src-ip=10.0.0.5, dst-ip=10.0.0.1
+# action:
+# set: src-ip=10.0.0.10
+# output: h1-port  
+
     else:
       log.info("Ignoring non-request ARP packet")
   else:
