@@ -135,15 +135,18 @@ def _handle_PacketIn(event):
     else:
       log.info("Ignoring non-request ARP packet")
   elif packet.type == packet.IP_TYPE:
-    msg = of.ofp_packet_out()
-    msg.data = packet.pack()
-    if packet.payload == IPAddr("10.0.0.5"):
-      msg.actions.append(of.ofp_action_output(port = 5))
-    elif packet.payload == IPAddr("10.0.0.6"):
-      msg.actions.append(of.ofp_action_output(port = 6))
-    msg.in_port = of.OFPP_NONE
-    event.connection.send(msg)
-    log.info("Forwarded IP_TYPE packet to server")
+    pass
+    #somehow you have to handle this apparently but idk what to do 
+
+    # msg = of.ofp_packet_out()
+    # msg.data = packet.pack()
+    # if packet.payload == IPAddr("10.0.0.5"):
+    #   msg.actions.append(of.ofp_action_output(port = 5))
+    # elif packet.payload == IPAddr("10.0.0.6"):
+    #   msg.actions.append(of.ofp_action_output(port = 6))
+    # msg.in_port = of.OFPP_NONE
+    # event.connection.send(msg)
+    # log.info("Forwarded IP_TYPE packet to server")
 
     
 '''
