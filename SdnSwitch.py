@@ -105,7 +105,6 @@ def _handle_PacketIn(event):
 # action:
 # set: src-ip=10.0.0.10
 # output: h1-port  
-
     else:
       log.info("Ignoring non-request ARP packet")
   else:
