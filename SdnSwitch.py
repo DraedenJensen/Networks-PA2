@@ -21,7 +21,6 @@ def launch():
 def _handle_UpEvent(event):
   log.info("Controller set up")
 
-
 def _handle_ConnectionUp(event):
   log.info("Switch connected, listening for packets")
   log.info(event.ofp)
@@ -36,6 +35,8 @@ def _handle_PacketIn(event):
   dpid = event.connection.dpid
   in_port = event.port
   packet = event.parsed
+
+  log.info(event.features)
 
   if not packet.parsed:
     log.warning("Packet received but couldn't be parsed")
