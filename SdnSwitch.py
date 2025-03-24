@@ -69,7 +69,7 @@ def _handle_PacketIn(event):
       arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
       arp_msg.in_port = in_port
       event.connection.send(arp_msg)
-      log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwdst}")
+      log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwdsrc}")
 
       of_msg = of.ofp_flow_mod()
       of_msg.match.in_port = in_port #this should match the port of the client host
