@@ -114,12 +114,12 @@ def _handle_PacketIn(event):
         event.connection.send(of_msg)
         log.info(f"OpenFlow rule set: match traffic from inport {out_port} with source {realIP} and destination {packet.payload.protosrc}, send to outport {in_port} with source {packet.payload.protodst}") 
 
-        arp_msg = of.ofp_packet_out()
-        arp_msg.data = ether.pack()
-        arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-        arp_msg.in_port = in_port
-        event.connection.send(arp_msg)
-        log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
+      arp_msg = of.ofp_packet_out()
+      arp_msg.data = ether.pack()
+      arp_msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
+      arp_msg.in_port = in_port
+      event.connection.send(arp_msg)
+      log.info(f"ARP reply sent to {packet.payload.protosrc}: {packet.payload.protodst} is-at {reply.hwsrc}")
         # forwarding
         # msg = of.ofp_packet_out()
         # msg.data = packet.pack()
