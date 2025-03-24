@@ -91,7 +91,7 @@ def _handle_PacketIn(event):
       of_msg.match.dl_type = 0x800
       of_msg.match.nw_src = reply.protosrc
       of_msg.match.nw_dst = packet.payload.protosrc
-      of_msg.actions.append(of.ofp_action_nw_addr.set_src(realIP) #this should match the real IP address of the selected server
+      of_msg.actions.append(of.ofp_action_nw_addr.set_src(realIP)) #this should match the real IP address of the selected server
       of_msg.actions.append(of.ofp_action_lw_addr.set_dst(reply.hwsrc))
       of_msg.actions.append(of.ofp_action_output(port = in_port))
       event.connection.send(of_msg_r)
